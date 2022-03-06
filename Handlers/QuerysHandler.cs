@@ -12,13 +12,12 @@ namespace MySqlDatabase.Handlers
 {
     public class QuerysHandler : IQuerysHandler
     {
-        private readonly IConnectionsHandler _cacheConnections;
+        private readonly IConnectionsHandler _connections;
 
-        public QuerysHandler(IConnectionsHandler cacheConnections)
+        public QuerysHandler(IConnectionsHandler connections)
         {
-            _cacheConnections = cacheConnections;
+            _connections = connections;
         }
-
 
         public async Task<List<List<string>>> GetQueryResultAsync(string schema, string query)
         {
@@ -26,7 +25,7 @@ namespace MySqlDatabase.Handlers
 
             try
             {
-                mySqlConnection = _cacheConnections.GetConnection(schema);
+                mySqlConnection = _connections.GetConnection(schema);
 
                 List<List<string>> result = new();
 
@@ -54,7 +53,7 @@ namespace MySqlDatabase.Handlers
 
             try
             {
-                mySqlConnection = _cacheConnections.GetConnection(schema);
+                mySqlConnection = _connections.GetConnection(schema);
 
                 List<List<string>> result = new();
 
@@ -76,14 +75,13 @@ namespace MySqlDatabase.Handlers
             }
         }
 
-
         public async Task<int> GetNonQueryResultAsync(string schema, string query)
         {
             MySqlConnection mySqlConnection = default;
 
             try
             {
-                mySqlConnection = _cacheConnections.GetConnection(schema);
+                mySqlConnection = _connections.GetConnection(schema);
 
                 int affectedRows = await MySql.ExeNonQueryAsync(mySqlConnection, query);
 
@@ -100,9 +98,16 @@ namespace MySqlDatabase.Handlers
             }
         }
 
-        public void DeleteConnectionStrings()
+        public void ResetConnections()
         {
-            _cacheConnections.DeleteConnectionStrings();
+            try
+            {
+                _connections.Initialize();
+            }
+            catch (Exception e)
+            {
+                throw;
+            }
         }
     }
 }

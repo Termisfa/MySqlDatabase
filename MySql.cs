@@ -40,7 +40,7 @@ namespace MySqlDatabase
         {
             try
             {
-                connection.Close();
+                connection.Dispose();
             }
             catch (Exception e)
             {
@@ -148,8 +148,15 @@ namespace MySqlDatabase
 
         private static void CheckForPossibleExploits(string query)
         {
-            if (query.Contains(';'))
-                throw new Exception("The char ';' is not allowed to avoid exploits");
+            try
+            {
+                if (query.Contains(';'))
+                    throw new Exception("The char ';' is not allowed to avoid exploits");
+            }
+            catch (Exception e)
+            {
+                throw;
+            }
         }
     }
 }

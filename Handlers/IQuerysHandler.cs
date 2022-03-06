@@ -14,6 +14,6 @@ namespace MySqlDatabase.Handlers
 
         Task<int> GetNonQueryResultAsync(string schema, string query);
 
-        void DeleteConnectionStrings();
+        void ResetConnections();
     }
 }

@@ -4,18 +4,33 @@ namespace MySqlDatabase.Handlers
 {
     public class ConnectionsHandler : IConnectionsHandler
     {
-        private readonly MySqlConnection MasterConnection;
-        private readonly Dictionary<string, string> ConnectionsStringDict;
+        private MySqlConnection MasterConnection;
+        private Dictionary<string, string> ConnectionsStringDict;
 
         public ConnectionsHandler()
         {
-            string connectionString = System.Configuration.ConfigurationManager.AppSettings["ConnectionString"];
+            Initialize();
+        }
 
-            if (connectionString == null)
-                throw new Exception("Connection string config missing in app.config");
+        public void Initialize()
+        {
+            try
+            {
+                string connectionString = System.Configuration.ConfigurationManager.AppSettings["ConnectionString"];
 
-            MasterConnection = MySql.ConnectFromConnectionString(connectionString);
-            ConnectionsStringDict = new();
+                if (connectionString == null)
+                    throw new Exception("Connection string config missing in app.config");
+
+                if (MasterConnection != null)
+                    MySql.Disconnect(MasterConnection);
+
+                MasterConnection = MySql.ConnectFromConnectionString(connectionString);
+                ConnectionsStringDict = new();
+            }
+            catch (Exception e)
+            {
+                throw;
+            }
         }
 
         public void DeleteConnectionStrings()
@@ -51,6 +66,5 @@ namespace MySqlDatabase.Handlers
                 throw;
             }
         }
-
     }
 }
