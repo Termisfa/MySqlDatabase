@@ -2,12 +2,12 @@
 
 namespace MySqlDatabase.Handlers
 {
-    public class ConnectionsHandler : IConnectionsHandler
+    public class MasterConnectionHandler : IMasterConnectionHandler
     {
-        private MySqlConnection MasterConnection;
-        private Dictionary<string, string> ConnectionsStringDict;
+        private MySqlConnection _masterConnection;
+        private Dictionary<string, string> _connectionsStringDict;
 
-        public ConnectionsHandler()
+        public MasterConnectionHandler()
         {
             Initialize();
         }
@@ -16,16 +16,20 @@ namespace MySqlDatabase.Handlers
         {
             try
             {
-                string connectionString = System.Configuration.ConfigurationManager.AppSettings["ConnectionString"];
+#if DEBUG
+                string connectionString = System.Configuration.ConfigurationManager.AppSettings["ConnectionStringDebug"];
+#else
+                string connectionString = System.Configuration.ConfigurationManager.AppSettings["ConnectionStringProd"];
+#endif
 
                 if (connectionString == null)
                     throw new Exception("Connection string config missing in app.config");
 
-                if (MasterConnection != null)
-                    MySql.Disconnect(MasterConnection);
+                if (_masterConnection != null)
+                    MySql.Disconnect(_masterConnection);
 
-                MasterConnection = MySql.ConnectFromConnectionString(connectionString);
-                ConnectionsStringDict = new();
+                _masterConnection = MySql.ConnectFromConnectionString(connectionString);
+                _connectionsStringDict = new();
             }
             catch (Exception e)
             {
@@ -33,18 +37,13 @@ namespace MySqlDatabase.Handlers
             }
         }
 
-        public void DeleteConnectionStrings()
-        {
-            ConnectionsStringDict?.Clear();
-        }
-
         public MySqlConnection GetConnection(string schema)
         {
             try
             {
-                if (!ConnectionsStringDict.TryGetValue(schema, out string connectionString))
+                if (!_connectionsStringDict.TryGetValue(schema, out string connectionString))
                 {
-                    using (MySqlDataReader reader = MySql.ExeQuery(MasterConnection, $"select value from connections where name = '{schema}'"))
+                    using (MySqlDataReader reader = MySql.ExeQuery(_masterConnection, $"select value from connection where name = '{schema}'"))
                     {
                         if (!reader.HasRows)
                             throw new Exception("The schema does not exist");
@@ -53,7 +52,7 @@ namespace MySqlDatabase.Handlers
 
                         connectionString = reader.GetString(0);
 
-                        ConnectionsStringDict.Add(schema, connectionString);
+                        _connectionsStringDict.Add(schema, connectionString);
                     }
                 }
 

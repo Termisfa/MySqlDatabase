@@ -2,12 +2,10 @@
 
 namespace MySqlDatabase.Handlers
 {
-    public interface IConnectionsHandler
+    public interface IMasterConnectionHandler
     {
         void Initialize();
 
         MySqlConnection GetConnection(string schema);
-
-        void DeleteConnectionStrings();
     }
 }

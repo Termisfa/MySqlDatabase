@@ -12,11 +12,11 @@ namespace MySqlDatabase.Handlers
 {
     public class QuerysHandler : IQuerysHandler
     {
-        private readonly IConnectionsHandler _connections;
+        private readonly IMasterConnectionHandler _masterConnectionHandler;
 
-        public QuerysHandler(IConnectionsHandler connections)
+        public QuerysHandler(IMasterConnectionHandler masterConnectionHandler)
         {
-            _connections = connections;
+            _masterConnectionHandler = masterConnectionHandler;
         }
 
         public async Task<List<List<string>>> GetQueryResultAsync(string schema, string query)
@@ -25,7 +25,7 @@ namespace MySqlDatabase.Handlers
 
             try
             {
-                mySqlConnection = _connections.GetConnection(schema);
+                mySqlConnection = _masterConnectionHandler.GetConnection(schema);
 
                 List<List<string>> result = new();
 
@@ -53,7 +53,7 @@ namespace MySqlDatabase.Handlers
 
             try
             {
-                mySqlConnection = _connections.GetConnection(schema);
+                mySqlConnection = _masterConnectionHandler.GetConnection(schema);
 
                 List<List<string>> result = new();
 
@@ -81,7 +81,7 @@ namespace MySqlDatabase.Handlers
 
             try
             {
-                mySqlConnection = _connections.GetConnection(schema);
+                mySqlConnection = _masterConnectionHandler.GetConnection(schema);
 
                 int affectedRows = await MySql.ExeNonQueryAsync(mySqlConnection, query);
 
@@ -102,7 +102,7 @@ namespace MySqlDatabase.Handlers
         {
             try
             {
-                _connections.Initialize();
+                _masterConnectionHandler.Initialize();
             }
             catch (Exception e)
             {

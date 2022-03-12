@@ -9,9 +9,9 @@ namespace MySqlDatabase.Helpers
 {
     public class ResetConnections : IResetConnections
     {
-        private readonly IConnectionsHandler _connections;
+        private readonly IMasterConnectionHandler _connections;
 
-        public ResetConnections(IConnectionsHandler connections)
+        public ResetConnections(IMasterConnectionHandler connections)
         {
             _connections = connections;
         }
@@ -20,7 +20,7 @@ namespace MySqlDatabase.Helpers
         {
             try
             {
-                var timer = new System.Timers.Timer(1000 * 60 * 60 * 1); //It should be 1000 * 60 * 60 * 24 * 1  (1 day)
+                var timer = new System.Timers.Timer(1000 * 60 * 60 * 1); //It should be 1000 * 60 * 60 * 1  (1 hour)
                 timer.Start();
                 timer.Elapsed += Reset;
             }
